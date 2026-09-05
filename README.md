@@ -34,6 +34,22 @@ cannot run, and an installer that wires it into your Startup folder.
 
 ## Install
 
+### Easiest: let your own Claude Code do it
+
+Everyone who needs this tool already has Claude Code, so paste this into a Claude Code session:
+
+```
+Clone https://github.com/Nouischen/claude-code-phone-gateway into C:\Projects\claude-code-phone-gateway
+(create C:\Projects if needed), then install it by following its README: run doctor.ps1 first and show me
+the output; if anything FAILs, stop and explain the fix in plain words. If there is no FAIL, run install.ps1
+with -Name "My PC" and show me the output. Finally tell me how to start a session from my phone.
+```
+
+`CLAUDE.md` in this repo tells the agent what to do and what not to touch. Approve the commands it asks
+to run; a successful install ends with `[4/4] gateway running and connected`.
+
+### By hand
+
 ```powershell
 git clone https://github.com/Nouischen/claude-code-phone-gateway.git
 cd claude-code-phone-gateway
@@ -202,7 +218,8 @@ MIT.
 **為什麼需要**：桌面版開的對話會自動出現在手機上，但手機主動開的新對話預設跑在雲端、碰不到本機。
 官方的伺服器模式解決這件事，只是它斷網約 10 分鐘會自己退出、開機也不會自己啟動。
 
-**怎麼裝**：三個指令，見上方 Install。純 PowerShell，不用裝 Python 或 Node，不需要管理員權限。
+**怎麼裝**：最簡單是把教學頁上那句話貼給你自己的 Claude Code，它會自己下載、健檢、安裝；
+也可以手動三個指令，見上方 Install。純 PowerShell，不用裝 Python 或 Node，不需要管理員權限。
 `doctor.ps1` 會逐項告訴你哪裡不符合、怎麼修；`install.ps1` 先實測連得上才安裝。
 
 **手機端**：Claude App → Code → Devices 選這台電腦 → 選安裝時的資料夾 → New session。
