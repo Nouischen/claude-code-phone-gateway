@@ -65,6 +65,22 @@ th{background:var(--soft);font-weight:800}
 .tag{display:inline-block;font-size:12.5px;font-weight:800;padding:2px 9px;border-radius:999px;margin-right:6px}
 .tag.ok{background:#d1fae5;color:var(--ok)}.tag.warn{background:#fef3c7;color:var(--warn)}.tag.bad{background:#fee2e2;color:var(--bad)}
 .note{border-left:4px solid var(--accent);background:var(--soft);padding:12px 16px;border-radius:0 12px 12px 0;margin:0 0 14px}
+.step{border-left:5px solid var(--accent)}
+.step.done{border-left-color:var(--ok);background:#f6fffb}
+.chk{display:flex;align-items:center;gap:10px;font-size:19px;margin:0 0 10px;cursor:pointer}
+.chk input,.checklist input{width:20px;height:20px;accent-color:var(--accent);flex:none;margin:0 6px 0 0}
+.checklist{list-style:none;padding:0;margin:0}
+.checklist li{margin:0 0 6px}
+.checklist label{display:flex;align-items:flex-start;gap:8px;cursor:pointer}
+.checklist input{margin-top:6px}
+.cmd{position:relative;margin:0 0 12px}
+.cmd pre{padding-right:86px;margin:0;white-space:pre-wrap;word-break:break-all}
+.copy{position:absolute;top:10px;right:10px;background:#fff;color:var(--accent-d);border:1.5px solid var(--line);border-radius:9px;padding:6px 12px;font-family:inherit;font-weight:800;font-size:13px;cursor:pointer}
+.copy:hover{background:var(--soft)}
+.copy.ok{background:#d1fae5;color:var(--ok);border-color:#a7f3d0}
+pre.out{background:#eef2f9;color:#1f2937;border:1px solid var(--line);font-size:13.5px}
+details{margin:8px 0 4px}summary{cursor:pointer;font-weight:800;color:var(--accent-d)}
+.step ol{padding-left:22px}.step ol li{margin-bottom:6px}
 .muted{color:var(--muted)}
 footer{padding:30px 0 50px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
 ul{padding-left:22px}li{margin-bottom:6px}
@@ -138,22 +154,116 @@ ul{padding-left:22px}li{margin-bottom:6px}
 </div></section>
 
 <section id="install"><div class="wrap">
-  <h2>安裝：三個指令</h2>
-  <p>前置條件：Windows 10／11、<a href="https://code.claude.com/docs/en/setup">Claude Code</a> 2.1.51 以上（原生安裝、npm 安裝、或桌面版內建的都可以，會自動偵測）、已用 claude.ai 訂閱帳號登入、手機裝好 Claude App 並登入同一個帳號。</p>
-<pre><code>git clone https://github.com/Nouischen/claude-code-phone-gateway.git
-cd claude-code-phone-gateway
-powershell -NoProfile -ExecutionPolicy Bypass -File .\doctor.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Name "我的電腦"</code></pre>
-  <ol class="steps">
-    <li><b>doctor</b> 逐項檢查 Windows、PowerShell、claude 程式與版本、登入狀態、會干擾的環境變數、工作資料夾。每一項印 PASS／WARN／FAIL 加一行修法。第一次跑會停在「資料夾尚未信任」的 WARN，這是正常的，交給下一步。</li>
-    <li><b>install</b> 只做四件事：在 <code>~/.claude.json</code> 把工作資料夾標成信任（先備份）；真的把伺服器起來測一次，連不上就拒絕安裝；寫一個「啟動」捷徑；現在就啟動並等到 <code>connected:</code> 那一行出現。</li>
-    <li>裝完打開手機 Claude App → Code → Devices 選這台電腦 → 選安裝時的資料夾 → New session。</li>
-  </ol>
-  <p class="muted">也可以把 README 整份丟給你自己的 Claude Code，跟它說「照這個裝」。repo 裡有一份 CLAUDE.md 是專門寫給它看的。</p>
+  <h2>安裝：照著做就好，大約 3 分鐘</h2>
+  <p class="muted">每一步都寫清楚：按什麼、貼什麼、會看到什麼。做完一步就打勾，勾勾會記在你的瀏覽器裡。</p>
+
+  <div class="card step">
+    <label class="chk"><input type="checkbox" data-step="s0"><b>第 0 步：先確認你有這四樣</b></label>
+    <ul class="checklist">
+      <li><label><input type="checkbox" data-step="s0a">一台 Windows 10 或 11 的電腦</label></li>
+      <li><label><input type="checkbox" data-step="s0b">電腦上裝了 Claude Code，而且用 claude.ai 的訂閱帳號（Pro／Max／Team）登入過。不確定沒關係，第 3 步會幫你檢查</label></li>
+      <li><label><input type="checkbox" data-step="s0c">手機上有 Claude App，登入的是同一個帳號</label></li>
+      <li><label><input type="checkbox" data-step="s0d">電腦上有 Git。沒有也可以，第 2 步有替代做法</label></li>
+    </ul>
+  </div>
+
+  <div class="card step">
+    <label class="chk"><input type="checkbox" data-step="s1"><b>第 1 步：打開 PowerShell</b></label>
+    <p>按鍵盤上的 Windows 鍵，直接打 <code>powershell</code>，按 Enter。會跳出一個藍色或黑色的文字視窗，最後一行長得像 <code>PS C:\Users\你的名字&gt;</code>，後面有一個閃爍的游標。之後所有指令都是貼在這個視窗裡，然後按 Enter。</p>
+    <div class="note">用一般方式開就好，不用「以系統管理員身分執行」。</div>
+  </div>
+
+  <div class="card step">
+    <label class="chk"><input type="checkbox" data-step="s2"><b>第 2 步：把程式抓下來</b></label>
+    <p>按下面的「複製」，回到 PowerShell 視窗按一下滑鼠右鍵（在這個視窗裡右鍵就是貼上），再按 Enter。</p>
+    <div class="cmd"><pre><code id="c1">git clone https://github.com/Nouischen/claude-code-phone-gateway.git</code></pre><button class="copy" data-for="c1" type="button">複製</button></div>
+    <p>會看到類似這樣，最後一行是 done：</p>
+    <pre class="out">Cloning into 'claude-code-phone-gateway'...
+remote: Enumerating objects: 30, done.
+Receiving objects: 100% (30/30), done.</pre>
+    <p>接著走進那個資料夾：</p>
+    <div class="cmd"><pre><code id="c2">cd claude-code-phone-gateway</code></pre><button class="copy" data-for="c2" type="button">複製</button></div>
+    <p>提示字元會變成 <code>PS C:\Users\你的名字\claude-code-phone-gateway&gt;</code>，代表你站對地方了。</p>
+    <details>
+      <summary>電腦上沒有 Git？用下載的方式</summary>
+      <p>到 <a href="https://github.com/Nouischen/claude-code-phone-gateway">GitHub 頁面</a>，按綠色的 <b>Code</b> 按鈕，選 <b>Download ZIP</b>。解壓縮到一個你找得到的地方，例如 <code>C:\Projects</code>。然後在 PowerShell 貼這一行進到那個資料夾：</p>
+      <div class="cmd"><pre><code id="c2b">cd C:\Projects\claude-code-phone-gateway-main</code></pre><button class="copy" data-for="c2b" type="button">複製</button></div>
+      <p class="muted">解壓縮出來的資料夾名稱結尾會多一個 -main，這是正常的。</p>
+    </details>
+  </div>
+
+  <div class="card step">
+    <label class="chk"><input type="checkbox" data-step="s3"><b>第 3 步：健檢</b></label>
+    <p>貼上、按 Enter。它會一項一項檢查你的電腦，每一行開頭是綠色的 PASS、黃色的 WARN 或紅色的 FAIL。</p>
+    <div class="cmd"><pre><code id="c3">powershell -NoProfile -ExecutionPolicy Bypass -File .\doctor.ps1</code></pre><button class="copy" data-for="c3" type="button">複製</button></div>
+    <p>正常會看到這樣，版本號和路徑跟你的不一樣沒關係：</p>
+    <pre class="out">[PASS] Windows 10 build 26200
+[PASS] PowerShell 5.1.26100.9168
+[PASS] Claude Code 2.1.258
+[PASS] claude.ai login found
+[PASS] No ANTHROPIC_API_KEY in environment
+[PASS] WorkDir C:\Users\you\claude-code-phone-gateway
+[WARN] WorkDir is not yet trusted
+[INFO] No startup shortcut yet
+[INFO] Live probe skipped: WorkDir not trusted yet
+Result: ready. 1 warning(s).</pre>
+    <p><b>那一行黃色 WARN 是正常的</b>，第 4 步會處理。只要沒有紅色 FAIL 就往下走。有 FAIL 的話，那一行底下就寫著怎麼修，修完再貼一次同一行重跑。</p>
+    <div class="tablewrap"><table>
+      <tr><th>看到的紅字</th><th>意思</th><th>怎麼辦</th></tr>
+      <tr><td>Claude Code not found</td><td>電腦上沒有 Claude Code</td><td>到 <a href="https://code.claude.com/docs/en/setup">官方安裝頁</a> 裝好，再回來重跑第 3 步</td></tr>
+      <tr><td>No claude.ai login</td><td>還沒用訂閱帳號登入過</td><td>在 PowerShell 打 <code>claude</code>，出現畫面後打 <code>/login</code>，照指示登入，完成後打 <code>/exit</code></td></tr>
+      <tr><td>Claude Code x.x.x is too old</td><td>版本太舊</td><td>打 <code>claude update</code>，跑完再重跑第 3 步</td></tr>
+      <tr><td>WorkDir is your user profile root</td><td>你把程式放在家目錄本身</td><td>把資料夾移到子資料夾，例如 <code>C:\Projects</code>，再 cd 進去</td></tr>
+    </table></div>
+  </div>
+
+  <div class="card step">
+    <label class="chk"><input type="checkbox" data-step="s4"><b>第 4 步：安裝</b></label>
+    <p>引號裡的「我的電腦」可以改成你想在手機上看到的名字。貼上、按 Enter。</p>
+    <div class="cmd"><pre><code id="c4">powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Name "我的電腦"</code></pre><button class="copy" data-for="c4" type="button">複製</button></div>
+    <p>大約 15 秒，會看到：</p>
+    <pre class="out">[1/4] work folder marked trusted in ~/.claude.json (backup: ...)
+[2/4] live probe: starting claude remote-control once...
+2026-09-06 03:50:39 connected: https://claude.ai/code?environment=env_...
+OK  remote-control server connected.
+[3/4] startup entry created: ...\Startup\Claude Code Phone Gateway.lnk
+[4/4] gateway running and connected: https://claude.ai/code?environment=env_...
+
+Done. On your phone: Claude app > Code > pick this computer under Devices > ...</pre>
+    <p>看到 <b>[4/4] gateway running and connected</b> 就成功了。之後電腦開機它會自己啟動，你不用再碰它，PowerShell 視窗可以關掉。</p>
+    <div class="note">如果最後一行是 <b>Install stopped: the server could not connect</b>，往上看紅字寫什麼，通常是第 3 步那張表裡的其中一種，修完重跑第 4 步。</div>
+  </div>
+
+  <div class="card step">
+    <label class="chk"><input type="checkbox" data-step="s5"><b>第 5 步：拿起手機試一下</b></label>
+    <ol>
+      <li>打開 Claude App，點下方的 <b>Code</b></li>
+      <li>找到 <b>Devices</b>（裝置），點你剛才取的名字。旁邊有綠點代表在線</li>
+      <li>Directory（資料夾）選 <code>claude-code-phone-gateway</code>，按 <b>New session</b></li>
+      <li>對它說一句：<code>列出這個資料夾裡的檔案</code></li>
+    </ol>
+    <p>它回你 <code>doctor.ps1</code>、<code>gateway.ps1</code>、<code>README.md</code> 這些檔名，就代表這場對話真的跑在你的電腦上。以後在這裡開的每一場對話，都用得到電腦裡的檔案。</p>
+    <div class="note">如果 App 要你「選一個 GitHub 專案」，那是雲端對話那條路，退回去改從 Devices 裡點你的電腦。</div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>更省事：叫你自己的 Claude Code 幫你裝</h3>
+      <p>如果你電腦上已經有 Claude Code，第 2 到第 4 步可以整包交給它。打開 Claude Code，貼這句：</p>
+      <div class="cmd"><pre><code id="c6">請照 https://github.com/Nouischen/claude-code-phone-gateway 的 README 把它裝起來，安裝名稱用「我的電腦」，每一步把輸出給我看，遇到 FAIL 就停下來告訴我</code></pre><button class="copy" data-for="c6" type="button">複製</button></div>
+      <p class="muted">repo 裡有一份 CLAUDE.md 是專門寫給它看的，它會知道該怎麼做、什麼不能做。</p>
+    </div>
+    <div class="card">
+      <h3>之後想移除</h3>
+      <p>回到那個資料夾，貼這一行。它會停掉程式、拿掉開機捷徑，紀錄檔留著。</p>
+      <div class="cmd"><pre><code id="c5">powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Uninstall</code></pre><button class="copy" data-for="c5" type="button">複製</button></div>
+      <p class="muted">最後一行應該是 <code>Uninstalled (1 process(es) stopped, none remaining)</code>。</p>
+    </div>
+  </div>
 </div></section>
 
 <section id="phone"><div class="wrap">
-  <h2>裝好之後怎麼確認</h2>
+  <h2>進階：紀錄檔在哪、怎麼看它活著</h2>
   <p>所有紀錄都在 <code>&lt;工作資料夾&gt;\logs\</code>：</p>
   <div class="tablewrap"><table>
     <tr><th>檔案</th><th>看什麼</th></tr>
@@ -203,5 +313,35 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Name "我的�
 <footer><div class="wrap">
   陳昱傑醫師｜台南・骨科與疼痛介入｜這個頁面和工具都是個人專案，與 Anthropic 無關。Claude、Claude Code 為 Anthropic 商標。
 </div></footer>
+<script>
+(function(){
+  // copy buttons
+  function fallbackCopy(text){
+    var ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');
+    ta.style.position='fixed';ta.style.top='-1000px';document.body.appendChild(ta);ta.select();
+    var ok=false;try{ok=document.execCommand('copy');}catch(e){}
+    document.body.removeChild(ta);return ok;
+  }
+  document.querySelectorAll('button.copy').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var el=document.getElementById(btn.getAttribute('data-for'));
+      var text=el?el.textContent:'';
+      var done=function(){btn.textContent='已複製';btn.classList.add('ok');setTimeout(function(){btn.textContent='複製';btn.classList.remove('ok');},1800);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,function(){if(fallbackCopy(text))done();});}
+      else if(fallbackCopy(text)){done();}
+    });
+  });
+  // checkboxes remembered per browser
+  var KEY='ccpg-steps';var state={};
+  try{state=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){state={};}
+  function paint(){document.querySelectorAll('.card.step').forEach(function(card){var top=card.querySelector('.chk input');card.classList.toggle('done',!!(top&&top.checked));});}
+  document.querySelectorAll('input[type=checkbox][data-step]').forEach(function(cb){
+    var id=cb.getAttribute('data-step');
+    if(state[id])cb.checked=true;
+    cb.addEventListener('change',function(){state[id]=cb.checked;try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}paint();});
+  });
+  paint();
+})();
+</script>
 </body>
 </html>
