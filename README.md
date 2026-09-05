@@ -33,16 +33,18 @@ cannot run, and an installer that wires it into your Startup folder.
 ## Install
 
 ```powershell
-git clone https://github.com/<you>/claude-code-phone-gateway.git
+git clone https://github.com/Nouischen/claude-code-phone-gateway.git
 cd claude-code-phone-gateway
 powershell -NoProfile -ExecutionPolicy Bypass -File .\doctor.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Name "My PC"
 ```
 
 `doctor.ps1` checks Windows, PowerShell, the `claude` binary and version, your login, interfering
-environment variables, the work folder, and then runs a **live probe**: it starts the server once,
-waits for the `https://claude.ai/code?environment=...` line, and stops it. Every check prints
-`PASS`, `WARN` or `FAIL` with a one-line fix.
+environment variables and the work folder. Every check prints `PASS`, `WARN` or `FAIL` with a
+one-line fix. On a fresh clone it ends with `[WARN] WorkDir is not yet trusted` and skips the live
+probe; that is expected. `install.ps1` seeds the trust flag and then runs the **live probe** itself:
+it starts the server once, waits for the `https://claude.ai/code?environment=...` line, and stops
+it. After installing, `doctor.ps1` reports the running gateway instead of probing (one server per folder).
 
 `install.ps1` does exactly four things:
 
@@ -107,8 +109,20 @@ normal after a network drop; the server exits on its own and the supervisor brin
 powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Uninstall
 ```
 
-Stops the gateway and removes the Startup entry. Logs and the trust flag in `~/.claude.json`
-are left in place.
+Stops every gateway started from this repo and removes the Startup entry. Expected last line:
+
+```
+Uninstalled (1 process(es) stopped, none remaining). Logs and the trust entry in ~/.claude.json were left in place.
+```
+
+If it prints `WARNING: a gateway is still running: pid N` instead, stop it with
+`taskkill /T /F /PID N`. To double-check nothing is left:
+
+```powershell
+Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object { $_.CommandLine -like "*gateway.ps1*" }
+```
+
+No output means no gateway process. Logs and the trust flag in `~/.claude.json` are left in place.
 
 ## Troubleshooting: the failures that are silent by default
 

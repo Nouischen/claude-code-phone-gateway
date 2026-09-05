@@ -102,7 +102,7 @@ function Set-WorkspaceTrust([string]$path, [string]$backupDir) {
         }
         $obj.projects | Add-Member -NotePropertyName $key -NotePropertyValue $entry
     }
-    if ($backupDir -eq "") { $backupDir = Join-Path $env:USERPROFILE ".claude\backups\phone-gateway" }
+    if ($backupDir -eq "") { $backupDir = Join-Path $env:USERPROFILE ".claude\backups\claude-code-phone-gateway" }
     New-Item -ItemType Directory -Force $backupDir | Out-Null
     $backup = Join-Path $backupDir (".claude.json.bak-" + (Get-Date -Format "yyyy-MM-dd-HHmmss"))
     Copy-Item $cfg $backup
@@ -123,5 +123,15 @@ function Get-StartupShortcutPath {
 }
 
 function Get-RunningGatewayProcesses {
-    return @(Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object { $_.CommandLine -like "*gateway.ps1*" -and $_.CommandLine -notlike "*-Test*" })
+    # Supervisors only: exclude one-shot "-Test" probes. The switch must be matched as its own
+    # token; a plain "*-Test*" wildcard also matched names like "stranger-test" (found by a
+    # reproduction test) and made -Uninstall report "0 process(es) stopped" while one kept running.
+    # Match only a real supervisor launch: powershell.exe ... -File "<dir>\gateway.ps1" ...
+    # A plain substring match also hit an unrelated PowerShell whose -Command text merely
+    # mentioned gateway.ps1 (an agent's own shell), and killed it.
+    return @(Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object {
+        $_.ProcessId -ne $PID -and
+        $_.CommandLine -match '(^|\s)-File\s+"?[^"\s]*gateway\.ps1"?' -and
+        $_.CommandLine -notmatch '(^|\s)-Test(\s|$)'
+    })
 }

@@ -53,6 +53,7 @@ function Stop-RunningGateway([string]$onlyForDir) {
         Write-Host "stopping gateway pid $($p.ProcessId)"
         & taskkill.exe /T /F /PID $p.ProcessId 2>&1 | Out-Null
     }
+    if ($procs.Count -gt 0) { Start-Sleep -Seconds 2 }
     return $procs.Count
 }
 
@@ -60,7 +61,13 @@ if ($Uninstall) {
     $n = Stop-RunningGateway ""
     if (Test-Path $shortcut) { Remove-Item $shortcut -Force; Write-Host "removed $shortcut" }
     if (Test-Path $launcherCmd) { Remove-Item $launcherCmd -Force; Write-Host "removed $launcherCmd" }
-    Write-Host "Uninstalled ($n process(es) stopped). Logs and the trust entry in ~/.claude.json were left in place."
+    $remaining = Get-RunningGatewayProcesses
+    if ($remaining.Count -gt 0) {
+        foreach ($p in $remaining) { Write-Host ("WARNING: a gateway is still running: pid {0}" -f $p.ProcessId) -ForegroundColor Yellow }
+        Write-Host "Stop it by hand:  taskkill /T /F /PID <pid>" -ForegroundColor Yellow
+        exit 1
+    }
+    Write-Host "Uninstalled ($n process(es) stopped, none remaining). Logs and the trust entry in ~/.claude.json were left in place."
     exit 0
 }
 
