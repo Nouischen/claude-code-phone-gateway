@@ -174,21 +174,24 @@ ul{padding-left:22px}li{margin-bottom:6px}
   </div>
 
   <div class="card step">
-    <label class="chk"><input type="checkbox" data-step="s2"><b>第 2 步：把程式抓下來</b></label>
-    <p>按下面的「複製」，回到 PowerShell 視窗按一下滑鼠右鍵（在這個視窗裡右鍵就是貼上），再按 Enter。</p>
-    <div class="cmd"><pre><code id="c1">git clone https://github.com/Nouischen/claude-code-phone-gateway.git</code></pre><button class="copy" data-for="c1" type="button">複製</button></div>
-    <p>會看到類似這樣，最後一行是 done：</p>
+    <label class="chk"><input type="checkbox" data-step="s2"><b>第 2 步：把程式抓到電腦裡</b></label>
+    <p>按下面的「複製」→ 回到 PowerShell 視窗 → 按一下滑鼠右鍵（在這個視窗裡，右鍵就是貼上）→ 按 Enter。</p>
+    <div class="cmd"><pre><code id="c1">git clone https://github.com/Nouischen/claude-code-phone-gateway.git; cd claude-code-phone-gateway</code></pre><button class="copy" data-for="c1" type="button">複製</button></div>
+    <p>會跑幾秒鐘，看到類似這樣就對了：</p>
     <pre class="out">Cloning into 'claude-code-phone-gateway'...
 remote: Enumerating objects: 30, done.
-Receiving objects: 100% (30/30), done.</pre>
-    <p>接著走進那個資料夾：</p>
-    <div class="cmd"><pre><code id="c2">cd claude-code-phone-gateway</code></pre><button class="copy" data-for="c2" type="button">複製</button></div>
-    <p>提示字元會變成 <code>PS C:\Users\你的名字\claude-code-phone-gateway&gt;</code>，代表你站對地方了。</p>
+Receiving objects: 100% (30/30), done.
+PS C:\Users\你的名字\claude-code-phone-gateway&gt;</pre>
+    <p><b>只要看最後一行</b>：結尾是 <code>claude-code-phone-gateway&gt;</code> 就代表電腦已經站在程式的資料夾裡，接下來第 3、4 步的指令都直接貼在這個視窗。不用理解那一行是什麼意思。</p>
+    <div class="note">如果出現紅字 <b>git 無法辨識</b> 或 <b>'git' is not recognized</b>，代表電腦沒有 Git，改用下面折疊起來的方法，一樣可以。</div>
     <details>
-      <summary>電腦上沒有 Git？用下載的方式</summary>
-      <p>到 <a href="https://github.com/Nouischen/claude-code-phone-gateway">GitHub 頁面</a>，按綠色的 <b>Code</b> 按鈕，選 <b>Download ZIP</b>。解壓縮到一個你找得到的地方，例如 <code>C:\Projects</code>。然後在 PowerShell 貼這一行進到那個資料夾：</p>
-      <div class="cmd"><pre><code id="c2b">cd C:\Projects\claude-code-phone-gateway-main</code></pre><button class="copy" data-for="c2b" type="button">複製</button></div>
-      <p class="muted">解壓縮出來的資料夾名稱結尾會多一個 -main，這是正常的。</p>
+      <summary>電腦上沒有 Git？用下載的方式，不用打指令</summary>
+      <ol>
+        <li>到 <a href="https://github.com/Nouischen/claude-code-phone-gateway">GitHub 頁面</a>，按綠色的 <b>Code</b> 按鈕，選 <b>Download ZIP</b></li>
+        <li>把下載的 ZIP 解壓縮，會得到一個叫 <code>claude-code-phone-gateway-main</code> 的資料夾。把它放到你找得到的地方，例如桌面</li>
+        <li>用滑鼠點兩下打開這個資料夾，在裡面的<b>空白處按右鍵</b>：Windows 11 選「<b>在終端機中開啟</b>」；Windows 10 先按住鍵盤的 Shift 再按右鍵，選「<b>在此處開啟 PowerShell 視窗</b>」</li>
+        <li>跳出來的視窗最後一行結尾是 <code>claude-code-phone-gateway-main&gt;</code>，就對了。關掉第 1 步開的那個視窗，之後都用這個新的</li>
+      </ol>
     </details>
   </div>
 
@@ -255,7 +258,7 @@ Done. On your phone: Claude app > Code > pick this computer under Devices > ...<
     </div>
     <div class="card">
       <h3>之後想移除</h3>
-      <p>回到那個資料夾，貼這一行。它會停掉程式、拿掉開機捷徑，紀錄檔留著。</p>
+      <p>先照第 2 步讓 PowerShell 視窗站在程式資料夾裡（再貼一次第 2 步那一行也可以），然後貼這一行。它會停掉程式、拿掉開機捷徑，紀錄檔留著。</p>
       <div class="cmd"><pre><code id="c5">powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Uninstall</code></pre><button class="copy" data-for="c5" type="button">複製</button></div>
       <p class="muted">最後一行應該是 <code>Uninstalled (1 process(es) stopped, none remaining)</code>。</p>
     </div>
