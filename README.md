@@ -144,7 +144,7 @@ These are the ones that cost real time before this repo handled them.
 | Server exits with `rc=1` every 30-600 s, `gateway.log` only says `restarting` | Any auth or trust problem above | Read `logs\server.log`; the alert file names the last line |
 | `home-directory trust is never saved` | `-WorkDir` is your profile root | Use a subfolder |
 | Server exits about 10 minutes after the PC loses network | By design | The supervisor restarts it with backoff (30 s doubling to 10 min) |
-| A modal error box appears while Windows shuts down | `taskkill` cannot run during shutdown | Handled: the gateway skips the kill when Windows reports shutdown |
+| A modal error box appears while Windows shuts down | Killing the server while Windows is shutting down can hang the shutdown screen | Handled: the gateway leaves the child to the OS when Windows reports shutdown |
 | Extra idle entries named after your PC pile up in the phone list | Each server (re)start pre-creates one session | Harmless; swipe them away |
 
 ## Optional: share memory with your main project
@@ -171,8 +171,11 @@ two entry points, no copies. It refuses to run if the work folder already has me
   verified against the process command line, so a reused PID does not fool it.
 - Exit within 120 s counts as a failure: backoff doubles from 30 s to 10 min, and after three
   failures in a row `ALERT-gateway.txt` is written with the server's last output line.
+- Stopping the server kills its whole process tree (walked via WMI, `Stop-Process -Force`), so the
+  npm shim, `claude.exe` and their console hosts never linger. `taskkill.exe` is avoided on purpose:
+  in PowerShell 5.1 its stderr becomes a terminating error and can abort an uninstall halfway.
 - Windows shutdown is detected with `GetSystemMetrics(SM_SHUTTINGDOWN)`; the gateway then leaves
-  the child to the OS instead of calling `taskkill`, which would hang the shutdown screen.
+  the child to the OS, because killing processes during shutdown can hang the shutdown screen.
 
 ## Related projects
 

@@ -159,10 +159,10 @@ function Unlock-Gateway {
 function Stop-ProcessTree([int]$processId) {
     if ($processId -le 0) { return }
     if (Test-ShuttingDown) {
-        Write-Log "windows is shutting down; leaving pid $processId to the OS (taskkill would hang the shutdown screen)"
+        Write-Log "windows is shutting down; leaving pid $processId to the OS (killing during shutdown can hang the shutdown screen)"
         return
     }
-    try { & taskkill.exe /T /F /PID $processId 2>&1 | Out-Null } catch { }
+    try { Stop-ProcessTreeById $processId } catch { }
 }
 
 function New-ServerProcess {

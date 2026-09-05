@@ -53,7 +53,7 @@ function Stop-RunningGateway([string]$onlyForDir) {
     if ($onlyForDir -ne "") { $procs = @($procs | Where-Object { $_.CommandLine -like "*$onlyForDir*" }) }
     foreach ($p in $procs) {
         Write-Host "stopping gateway pid $($p.ProcessId)"
-        & taskkill.exe /T /F /PID $p.ProcessId 2>&1 | Out-Null
+        Stop-ProcessTreeById $p.ProcessId
     }
     $count = @($procs).Count
     if ($count -gt 0) { Start-Sleep -Seconds 2 }

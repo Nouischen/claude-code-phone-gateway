@@ -117,6 +117,34 @@ function Set-WorkspaceTrust([string]$path, [string]$backupDir) {
     return $backup
 }
 
+function Get-ProcessTreeIds([int]$rootId) {
+    # The root and all of its descendants, children before parents is not required for
+    # Stop-Process -Force, but we still collect the whole tree first so nothing is orphaned.
+    $all = @(Get-CimInstance Win32_Process | Select-Object ProcessId, ParentProcessId)
+    $ids = New-Object System.Collections.Generic.List[int]
+    $queue = New-Object System.Collections.Generic.Queue[int]
+    $queue.Enqueue($rootId)
+    while ($queue.Count -gt 0) {
+        $current = $queue.Dequeue()
+        if ($ids.Contains($current)) { continue }
+        $ids.Add($current)
+        foreach ($p in $all) { if ($p.ParentProcessId -eq $current -and -not $ids.Contains([int]$p.ProcessId)) { $queue.Enqueue([int]$p.ProcessId) } }
+    }
+    return $ids.ToArray()
+}
+
+function Stop-ProcessTreeById([int]$rootId) {
+    # Kill root + descendants with Stop-Process. taskkill.exe is deliberately not used:
+    # under $ErrorActionPreference = "Stop" a single child it cannot kill turns its stderr
+    # into a terminating error and aborts the whole uninstall (seen in a test).
+    if ($rootId -le 0) { return }
+    $ids = Get-ProcessTreeIds $rootId
+    foreach ($id in $ids) {
+        if ($id -eq $PID) { continue }
+        Stop-Process -Id $id -Force -ErrorAction SilentlyContinue
+    }
+}
+
 function Get-StartupShortcutPath {
     $startup = [Environment]::GetFolderPath("Startup")
     return (Join-Path $startup "Claude Code Phone Gateway.lnk")
