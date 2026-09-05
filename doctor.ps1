@@ -106,7 +106,7 @@ if ($null -eq $dirFull -or -not (Test-Path $dirFull)) {
 }
 
 # 6. already running?
-$running = Get-RunningGatewayProcesses
+$running = @(Get-RunningGatewayProcesses)   # @() keeps a single result an array (Count works)
 if ($running.Count -gt 0) {
     Write-Check "INFO" "A gateway is already running (pid $($running[0].ProcessId))" "Logs: <WorkDir>\logs\gateway.log"
 }

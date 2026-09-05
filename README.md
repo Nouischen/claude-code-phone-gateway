@@ -53,15 +53,24 @@ it. After installing, `doctor.ps1` reports the running gateway instead of probin
 3. writes `start-gateway.cmd` and a Startup shortcut that launches it with no visible window;
 4. starts the gateway now and waits for the `connected:` line.
 
-Expected tail of the install output:
+Expected tail of the install output (timestamps, pid and paths will differ):
 
 ```
 [2/4] live probe: starting claude remote-control once...
+2026-09-06 03:50:36 test mode: claude='C:\Users\you\AppData\Roaming\npm\claude.cmd'
+2026-09-06 03:50:36 server started pid=27764 name='install-probe' dir='C:\...\claude-code-phone-gateway'
+2026-09-06 03:50:39 connected: https://claude.ai/code?environment=env_...
+2026-09-06 03:50:39 probe done; server stopped on purpose after 3s
+
 OK  remote-control server connected.
     environment: https://claude.ai/code?environment=env_...
+    (a stopped test run leaves this environment listed on claude.ai; it is harmless)
 [3/4] startup entry created: C:\Users\you\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\Claude Code Phone Gateway.lnk
 [4/4] gateway running and connected: https://claude.ai/code?environment=env_...
 ```
+
+The probe stops its server on purpose once it has connected; the gateway that stays running
+is the one started in step 4.
 
 ### Options
 

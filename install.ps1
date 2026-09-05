@@ -47,21 +47,24 @@ $launcherCmd = Join-Path $here "start-gateway.cmd"
 $vbs = Join-Path $here "run-hidden.vbs"
 
 function Stop-RunningGateway([string]$onlyForDir) {
-    $procs = Get-RunningGatewayProcesses
+    # @() everywhere: PowerShell unrolls a one-element result into a bare CimInstance,
+    # whose .Count is empty. That printed "Uninstalled ( process(es) stopped" in a test.
+    $procs = @(Get-RunningGatewayProcesses)
     if ($onlyForDir -ne "") { $procs = @($procs | Where-Object { $_.CommandLine -like "*$onlyForDir*" }) }
     foreach ($p in $procs) {
         Write-Host "stopping gateway pid $($p.ProcessId)"
         & taskkill.exe /T /F /PID $p.ProcessId 2>&1 | Out-Null
     }
-    if ($procs.Count -gt 0) { Start-Sleep -Seconds 2 }
-    return $procs.Count
+    $count = @($procs).Count
+    if ($count -gt 0) { Start-Sleep -Seconds 2 }
+    return $count
 }
 
 if ($Uninstall) {
     $n = Stop-RunningGateway ""
     if (Test-Path $shortcut) { Remove-Item $shortcut -Force; Write-Host "removed $shortcut" }
     if (Test-Path $launcherCmd) { Remove-Item $launcherCmd -Force; Write-Host "removed $launcherCmd" }
-    $remaining = Get-RunningGatewayProcesses
+    $remaining = @(Get-RunningGatewayProcesses)
     if ($remaining.Count -gt 0) {
         foreach ($p in $remaining) { Write-Host ("WARNING: a gateway is still running: pid {0}" -f $p.ProcessId) -ForegroundColor Yellow }
         Write-Host "Stop it by hand:  taskkill /T /F /PID <pid>" -ForegroundColor Yellow

@@ -239,7 +239,11 @@ function Invoke-ServerRun([Nullable[datetime]]$deadline) {
         $rc = $null
         try { $rc = $proc.ExitCode } catch { }
         $seconds = [int]((Get-Date) - $started).TotalSeconds
-        Write-Log ("server exited rc={0} after {1}s" -f $rc, $seconds)
+        if ($Test -and $null -ne $envUrl) {
+            Write-Log ("probe done; server stopped on purpose after {0}s" -f $seconds)
+        } else {
+            Write-Log ("server exited rc={0} after {1}s" -f $rc, $seconds)
+        }
         return @{ Seconds = $seconds; ExitCode = $rc; EnvUrl = $envUrl; Tail = $tail.ToArray() }
     } finally {
         $script:ChildPid = 0
