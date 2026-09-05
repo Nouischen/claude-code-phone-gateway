@@ -41,7 +41,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Name "My PC"
 
 `doctor.ps1` checks Windows, PowerShell, the `claude` binary and version, your login, interfering
 environment variables and the work folder. Every check prints `PASS`, `WARN` or `FAIL` with a
-one-line fix. On a fresh clone it ends with `[WARN] WorkDir is not yet trusted` and skips the live
+one-line fix. On a fresh clone it reports `[WARN] WorkDir is not yet trusted` and skips the live
 probe; that is expected. `install.ps1` seeds the trust flag and then runs the **live probe** itself:
 it starts the server once, waits for the `https://claude.ai/code?environment=...` line, and stops
 it. After installing, `doctor.ps1` reports the running gateway instead of probing (one server per folder).

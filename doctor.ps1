@@ -52,8 +52,11 @@ else { Write-Check "FAIL" "PowerShell $($PSVersionTable.PSVersion)" "Windows Pow
 
 # 2. claude binary
 $claude = $null
-try { $claude = Find-ClaudePath $ClaudePath } catch { Write-Check "FAIL" "claude path" $_.Exception.Message }
-if ($null -eq $claude) {
+$claudeError = $null
+try { $claude = Find-ClaudePath $ClaudePath } catch { $claudeError = $_.Exception.Message }
+if ($null -ne $claudeError) {
+    Write-Check "FAIL" "claude path" $claudeError
+} elseif ($null -eq $claude) {
     Write-Check "FAIL" "Claude Code not found" "Install it: https://code.claude.com/docs/en/setup  (or pass -ClaudePath)"
 } else {
     $ver = Get-ClaudeVersion $claude
@@ -136,7 +139,8 @@ if ($NoProbe) {
 Write-Host ""
 if ($script:Failures -eq 0) {
     Write-Host ("Result: ready. {0} warning(s)." -f $script:Warnings) -ForegroundColor Green
-    Write-Host "Next: powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1"
+    if ($running.Count -gt 0) { Write-Host "Next: nothing. The gateway is installed and running." }
+    else { Write-Host "Next: powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1" }
     exit 0
 } else {
     Write-Host ("Result: {0} problem(s) to fix first." -f $script:Failures) -ForegroundColor Red
