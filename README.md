@@ -119,7 +119,7 @@ If it prints `WARNING: a gateway is still running: pid N` instead, stop it with
 `taskkill /T /F /PID N`. To double-check nothing is left:
 
 ```powershell
-Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object { $_.CommandLine -like "*gateway.ps1*" }
+Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object { $_.ProcessId -ne $PID -and $_.CommandLine -match '-File\s+"?[^"\s]*gateway\.ps1' } | Select-Object ProcessId, CommandLine
 ```
 
 No output means no gateway process. Logs and the trust flag in `~/.claude.json` are left in place.
