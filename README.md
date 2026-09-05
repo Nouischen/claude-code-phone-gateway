@@ -7,6 +7,8 @@ working after reboots and network drops.
 Pure Windows PowerShell 5.1. Nothing to install: no Python, no Node, no admin rights,
 no services, no scheduled tasks.
 
+中文教學頁（緣起、設定在哪、安裝、排錯）：https://claude-code-phone-gateway.pages.dev
+
 ## Why this exists
 
 Claude Desktop already mirrors sessions you open on the PC to your phone. The other direction

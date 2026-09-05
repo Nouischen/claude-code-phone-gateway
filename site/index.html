@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Claude Code Phone Gateway｜手機開的新對話，也能落在自己的電腦上</title>
+<meta name="description" content="Claude Code 桌面版開的對話會自動出現在手機上，但手機主動開的新對話預設跑在雲端、碰不到本機檔案。這個開源小工具讓 Windows 電腦一直掛在手機的裝置清單裡，手機開新對話就落在你自己的電腦上。純 PowerShell，零依賴。">
+<meta property="og:title" content="Claude Code Phone Gateway｜手機開的新對話，也能落在自己的電腦上">
+<meta property="og:description" content="讓手機上的 Claude App 在你自己的 Windows 電腦上開新的 Claude Code 對話。純 PowerShell，零依賴，三個指令裝完。">
+<style>
+:root{
+  --accent:#1d4ed8;--accent-d:#1e3a8a;--ink:#172033;--muted:#5b6478;
+  --bg:#f5f7fb;--panel:#fff;--line:#e2e7f0;--soft:#e8eefc;--dark:#0f1c3f;
+  --ok:#0f766e;--warn:#b45309;--bad:#b91c1c;
+  --shadow:0 18px 40px rgba(15,28,63,.08);
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,system-ui,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  font-size:17px;line-height:1.85;-webkit-font-smoothing:antialiased}
+h1,h2,h3{line-height:1.3;letter-spacing:.3px;margin:0 0 14px}
+h2{font-size:clamp(24px,3.2vw,32px);font-weight:900}
+h3{font-size:19px;font-weight:800}
+p{margin:0 0 14px}
+a{color:var(--accent-d);text-decoration:none;font-weight:600}
+a:hover{color:var(--accent)}
+code{font-family:ui-monospace,Consolas,"Cascadia Mono",Menlo,monospace;font-size:.92em;background:var(--soft);padding:2px 6px;border-radius:6px}
+pre{background:var(--dark);color:#e6edf7;border-radius:14px;padding:16px 18px;overflow-x:auto;font-size:14px;line-height:1.6;margin:0 0 14px}
+pre code{background:none;padding:0;color:inherit;font-size:inherit}
+.wrap{max-width:900px;margin:0 auto;padding:0 22px}
+.accentbar{height:5px;background:linear-gradient(90deg,#1d4ed8,#60a5fa,#1d4ed8)}
+nav{position:sticky;top:0;z-index:20;background:rgba(245,247,251,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;height:60px;gap:16px}
+nav .logo{font-weight:900;font-size:17px;color:var(--accent)}
+nav .sp{margin-left:auto}
+nav .links a{font-size:14px;margin-left:14px;color:var(--muted)}
+.pillbtn{display:inline-block;background:var(--accent);color:#fff;padding:11px 20px;border-radius:11px;font-weight:800;font-size:15px}
+.pillbtn:hover{background:var(--accent-d);color:#fff}
+.ghost{display:inline-block;border:1.5px solid var(--line);background:#fff;color:var(--accent-d);padding:10px 18px;border-radius:11px;font-weight:800;font-size:15px;margin-left:8px}
+.hero{padding:58px 0 34px}
+.eyebrow{display:inline-block;background:var(--soft);color:var(--accent-d);font-weight:800;font-size:13.5px;padding:5px 13px;border-radius:999px;margin-bottom:14px}
+.hero h1{font-size:clamp(30px,5vw,46px);font-weight:900;margin:0 0 16px}
+.hero h1 .u{background:linear-gradient(transparent 60%,#bfdbfe 60%);padding:0 2px}
+.lead{font-size:19px;color:var(--muted);margin:0 0 22px}
+.byline{color:var(--muted);font-size:14.5px;margin:0 0 14px}
+section{padding:34px 0}
+section+section{border-top:1px solid var(--line)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow);margin:0 0 16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:720px){.grid2{grid-template-columns:1fr}.ghost{margin:10px 0 0}}
+.flow{display:flex;align-items:stretch;gap:10px;margin:18px 0 8px;flex-wrap:wrap}
+.flow .box{flex:1 1 150px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px;text-align:center}
+.flow .box b{display:block;font-size:16px;margin-bottom:4px}
+.flow .box small{color:var(--muted);font-size:13px;line-height:1.5;display:block}
+.flow .arr{align-self:center;color:var(--accent);font-weight:900;font-size:22px}
+.flow .box.you{border-color:var(--accent);background:var(--soft)}
+.steps{counter-reset:s;list-style:none;padding:0;margin:0}
+.steps li{position:relative;padding-left:44px;margin:0 0 18px}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:2px;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center;font-size:15px}
+table{width:100%;border-collapse:collapse;font-size:15px;background:#fff;border-radius:12px;overflow:hidden}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+th{background:var(--soft);font-weight:800}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:0 0 14px}
+.tag{display:inline-block;font-size:12.5px;font-weight:800;padding:2px 9px;border-radius:999px;margin-right:6px}
+.tag.ok{background:#d1fae5;color:var(--ok)}.tag.warn{background:#fef3c7;color:var(--warn)}.tag.bad{background:#fee2e2;color:var(--bad)}
+.note{border-left:4px solid var(--accent);background:var(--soft);padding:12px 16px;border-radius:0 12px 12px 0;margin:0 0 14px}
+.muted{color:var(--muted)}
+footer{padding:30px 0 50px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+ul{padding-left:22px}li{margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="accentbar"></div>
+<nav><div class="wrap">
+  <span class="logo">Claude Code Phone Gateway</span>
+  <span class="sp"></span>
+  <span class="links"><a href="#why">緣起</a><a href="#what">做什麼</a><a href="#install">安裝</a><a href="#phone">手機</a><a href="#fail">排錯</a><a href="https://github.com/Nouischen/claude-code-phone-gateway">GitHub</a></span>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <span class="eyebrow">開源・Windows・純 PowerShell・零依賴</span>
+  <p class="byline">by <b>陳昱傑</b>｜骨科醫師，順手把自己用的東西整理給大家</p>
+  <h1>手機開的新對話，<span class="u">也能落在自己的電腦上</span></h1>
+  <p class="lead">Claude Code 桌面版開的對話會自動出現在手機上；但反過來，手機主動開的新對話預設跑在雲端，碰不到你電腦裡的檔案、工具和設定。這個小工具補上反方向：讓你的 Windows 電腦一直掛在手機的裝置清單裡，手機開新對話就落在你自己的機器上，重開機、斷網之後也會自己回來。</p>
+  <a class="pillbtn" href="#install">三個指令裝起來</a>
+  <a class="ghost" href="https://github.com/Nouischen/claude-code-phone-gateway">看程式碼（MIT）</a>
+</div></header>
+
+<section id="why"><div class="wrap">
+  <h2>來龍去脈：為什麼會有這個東西</h2>
+  <p>我很常用手機交代 Claude Code 做事。以前在電腦上開一個新的 Claude Code 對話，還得先在對話框裡打一次 <code>/remote-control</code>，手機才看得到那一場；電腦重開機之後，更要先用遠端桌面連回去打指令。用久了就覺得，這件事 ChatGPT 的 Codex 做得比較像人：電腦配對一次，之後不管從電腦還是手機開新視窗，兩邊都同時看得到。</p>
+  <p>後來我才發現，Claude Code 其實早就補上了一半。桌面版的設定裡有一個開關叫 <b>Connect new sessions to Remote Control</b>（文件上的舊名是 Enable remote control by default），打開之後，電腦上每一場新對話都會自動連上手機，不用再打指令。我這台是 8 月下旬的桌面版更新之後就開始自動連的，只是我一直照舊習慣打指令，沒感覺到差別，9 月才真的注意到。</p>
+  <p>但另一半一直沒補上：<b>從手機上的 Claude App 主動開一個新對話，預設不是開在我的電腦上，而是開在 Anthropic 的雲端伺服器上。</b>AI 本來就在雲端跑，差別在於那個對話碰不到我電腦裡的檔案、工具和設定，等於是另一台空機器。我這幾個月累積的參考資料、記憶、各種自動化流程，它一個都用不到。</p>
+  <p>官方其實有解法，叫伺服器模式：在電腦上跑 <code>claude remote-control</code>，你的電腦就會出現在手機 App 的 Devices 清單裡，可以直接在上面開新對話。問題是它當常駐服務很勉強：斷網大約 10 分鐘會自己退出，開機也不會自己啟動。所以我先寫了一支常駐程式把它包起來，自己用了一陣子；這次整理成別人也能照著裝的版本，放上 GitHub。</p>
+  <div class="flow">
+    <div class="box"><b>手機 Claude App</b><small>Code 分頁 → Devices → 你的電腦 → New session</small></div>
+    <div class="arr">→</div>
+    <div class="box"><b>claude.ai 中繼</b><small>只轉發訊息，程式碼與檔案不經過它</small></div>
+    <div class="arr">→</div>
+    <div class="box you"><b>你的 Windows 電腦</b><small>閘道讓 claude remote-control 一直活著；對話在這裡跑、用得到本機檔案</small></div>
+  </div>
+</div></section>
+
+<section id="what"><div class="wrap">
+  <h2>它做什麼，不做什麼</h2>
+  <div class="grid2">
+    <div class="card"><h3>做的事</h3>
+      <ul>
+        <li>把官方的 <code>claude remote-control</code> 伺服器隱藏在背景跑，沒有黑色視窗</li>
+        <li>它退出就自動重開，連續失敗會退避，不會瘋狂重生</li>
+        <li>開機自動啟動（只放一個「啟動」資料夾捷徑，不裝服務、不建排程）</li>
+        <li>伺服器連續秒退三次就寫一個告警檔，不會默默壞掉</li>
+        <li>附一支 <code>doctor</code>：逐項告訴你哪裡不符合、怎麼修，最後真的把伺服器起來測一次</li>
+      </ul>
+    </div>
+    <div class="card"><h3>不做的事</h3>
+      <ul>
+        <li>不碰 Mac／Linux，第一版只支援 Windows 10／11</li>
+        <li>不需要 Python、Node、管理員權限，也不改登錄檔、不動 feature flag</li>
+        <li>不取代桌面版的自動連線，那個方向官方已經做了；它只補「手機開新對話落在本機」這一段</li>
+        <li>不幫你登入。你需要 claude.ai 的訂閱帳號（Pro／Max／Team），API 金鑰走不通</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<section id="settings"><div class="wrap">
+  <h2>順便講清楚：設定在哪裡、要開哪些</h2>
+  <div class="tablewrap"><table>
+    <tr><th>想要的效果</th><th>在哪裡設定</th><th>備註</th></tr>
+    <tr><td>電腦開的對話自動出現在手機</td><td>Claude 桌面版 → Settings → Claude Code → <b>Connect new sessions to Remote Control</b></td><td>官方文件仍寫舊名 Enable remote control by default。我的實測是 8 月下旬更新後就預設會連，開關的狀態不一定對得上</td></tr>
+    <tr><td>終端機（CLI）開的對話自動連手機</td><td>在 Claude Code 裡打 <code>/config</code> → <b>Enable Remote Control for all sessions</b></td><td>設定檔的鍵是 <code>remoteControlAtStartup</code>，放在使用者層級的 settings.json</td></tr>
+    <tr><td>手機主動開的新對話落在自己電腦上</td><td>電腦上跑 <code>claude remote-control</code>（伺服器模式）</td><td>這就是本工具負責讓它一直活著的那個程式</td></tr>
+    <tr><td>手機不用架東西也能交辦</td><td>桌面版 Cowork 分頁的 Dispatch，手機配對一次</td><td>走的是「傳任務給桌面版」，不是直接開 Code 對話；Pro／Max 限定</td></tr>
+  </table></div>
+  <div class="note">手機端選「電腦」不是選「GitHub 專案」。選了專案就是雲端對話，跟本機無關。</div>
+</div></section>
+
+<section id="install"><div class="wrap">
+  <h2>安裝：三個指令</h2>
+  <p>前置條件：Windows 10／11、<a href="https://code.claude.com/docs/en/setup">Claude Code</a> 2.1.51 以上（原生安裝、npm 安裝、或桌面版內建的都可以，會自動偵測）、已用 claude.ai 訂閱帳號登入、手機裝好 Claude App 並登入同一個帳號。</p>
+<pre><code>git clone https://github.com/Nouischen/claude-code-phone-gateway.git
+cd claude-code-phone-gateway
+powershell -NoProfile -ExecutionPolicy Bypass -File .\doctor.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Name "我的電腦"</code></pre>
+  <ol class="steps">
+    <li><b>doctor</b> 逐項檢查 Windows、PowerShell、claude 程式與版本、登入狀態、會干擾的環境變數、工作資料夾。每一項印 PASS／WARN／FAIL 加一行修法。第一次跑會停在「資料夾尚未信任」的 WARN，這是正常的，交給下一步。</li>
+    <li><b>install</b> 只做四件事：在 <code>~/.claude.json</code> 把工作資料夾標成信任（先備份）；真的把伺服器起來測一次，連不上就拒絕安裝；寫一個「啟動」捷徑；現在就啟動並等到 <code>connected:</code> 那一行出現。</li>
+    <li>裝完打開手機 Claude App → Code → Devices 選這台電腦 → 選安裝時的資料夾 → New session。</li>
+  </ol>
+  <p class="muted">也可以把 README 整份丟給你自己的 Claude Code，跟它說「照這個裝」。repo 裡有一份 CLAUDE.md 是專門寫給它看的。</p>
+</div></section>
+
+<section id="phone"><div class="wrap">
+  <h2>裝好之後怎麼確認</h2>
+  <p>所有紀錄都在 <code>&lt;工作資料夾&gt;\logs\</code>：</p>
+  <div class="tablewrap"><table>
+    <tr><th>檔案</th><th>看什麼</th></tr>
+    <tr><td><code>gateway.log</code></td><td>管家事件：<code>server started</code>、<code>connected: &lt;網址&gt;</code>、<code>server exited</code>、<code>restarting in Ns</code>。健康狀態＝每次啟動後都有一行 connected</td></tr>
+    <tr><td><code>server.log</code></td><td>伺服器自己的輸出，超過 2 MB 自動輪替。出事時真正的原因在這裡</td></tr>
+    <tr><td><code>ALERT-gateway.txt</code></td><td>連續三次秒退才會出現，恢復時再寫一行</td></tr>
+  </table></div>
+  <p>斷網之後伺服器每隔幾分鐘重啟一次是正常的，它自己退出、管家把它帶回來。要移除就跑 <code>install.ps1 -Uninstall</code>，會停掉程序、拿掉捷徑，紀錄和信任設定留著。</p>
+</div></section>
+
+<section id="fail"><div class="wrap">
+  <h2>會靜默失敗的地方</h2>
+  <p>這幾個都是我自己踩過、而且壞掉時沒有任何聲音的。工具現在會處理，但知道原因比較不會慌。</p>
+  <div class="tablewrap"><table>
+    <tr><th>症狀</th><th>原因</th><th>處理</th></tr>
+    <tr><td><span class="tag bad">FAIL</span>Workspace not trusted</td><td>工作資料夾沒被信任</td><td>install 會種信任旗標；手動做法是在資料夾裡跑一次 <code>claude</code> 並按同意</td></tr>
+    <tr><td><span class="tag bad">FAIL</span>requires claude.ai subscription auth</td><td>環境變數裡有 <code>ANTHROPIC_API_KEY</code>，claude 改走金鑰認證</td><td>管家啟動伺服器時會把 <code>ANTHROPIC_*</code> 剝掉，你的全域變數不用刪</td></tr>
+    <tr><td><span class="tag warn">WARN</span>每 30 秒到 10 分鐘就 rc=1 重啟</td><td>上面任一種認證或信任問題</td><td>看 <code>server.log</code>，告警檔會寫最後一行</td></tr>
+    <tr><td><span class="tag bad">FAIL</span>home-directory trust is never saved</td><td>工作資料夾設成了家目錄</td><td>換一個子資料夾，這是官方的安全設計</td></tr>
+    <tr><td><span class="tag ok">正常</span>斷網約 10 分鐘後伺服器退出</td><td>官方設計</td><td>管家會用 30 秒起跳、最長 10 分鐘的退避重啟</td></tr>
+    <tr><td><span class="tag ok">正常</span>手機清單多了幾個閒置項目</td><td>伺服器每次啟動會預建一場</td><td>滑掉就好</td></tr>
+  </table></div>
+</div></section>
+
+<section id="process"><div class="wrap">
+  <h2>做的過程：怎麼確定「別人真的裝得起來」</h2>
+  <p>我沒有第二台 Windows 可以測，所以用另一種方式：開一個全新的 Claude Code，扮演完全沒看過這個專案的陌生人，只准讀 README，從 clone、doctor、install、驗證、移除全程自己做，中途我不插手。這樣跑了三輪，前兩輪各抓到一個真的 bug：</p>
+  <ul>
+    <li>移除指令沒把常駐程序關掉，因為過濾程序的字串比對把 session 名稱裡的「-test」誤判成測試模式</li>
+    <li>安裝後再跑 doctor 會多開一個探針、移除時的計數印成空白，根因是 PowerShell 把只有一個元素的陣列拆掉了</li>
+    <li>自己再測時又抓到一個：taskkill 的錯誤訊息在嚴格模式下會把整支移除腳本中途殺掉，改成不靠 taskkill 的程序樹終止</li>
+  </ul>
+  <p>第三輪全部通過。另外補測了幾條 README 宣稱但陌生人沒踩到的失敗路徑：工作資料夾設成家目錄、claude 路徑錯、環境變數帶 API 金鑰、用桌面版內建的 claude.exe，反應都跟文件寫的一樣。</p>
+  <div class="note"><b>誠實的邊界</b>：全部在我這一台、npm 安裝的 Claude Code 上測的；原生安裝器的路徑有寫偵測但沒實機驗過；Mac 明寫不支援。Anthropic 正在往原生化走，哪天官方內建了常駐伺服器，這個工具就可以退役，那是好事。</div>
+</div></section>
+
+<section id="links"><div class="wrap">
+  <h2>連結</h2>
+  <ul>
+    <li>程式碼與英文 README：<a href="https://github.com/Nouischen/claude-code-phone-gateway">github.com/Nouischen/claude-code-phone-gateway</a>（MIT）</li>
+    <li>官方文件：<a href="https://code.claude.com/docs/en/remote-control">Remote Control</a>、<a href="https://code.claude.com/docs/en/mobile">Claude Code on mobile</a>、<a href="https://code.claude.com/docs/en/desktop">Desktop app</a></li>
+    <li>同類專案：<a href="https://github.com/curran-gehring/claude-remote-control-keepalive">claude-remote-control-keepalive</a>、<a href="https://github.com/jozefkun/claude-rc-service">claude-rc-service</a>（都用排程任務，本工具的差別是不需排程、服務、管理員或 feature flag，並加上 doctor、金鑰剝除、告警檔與關機保護）</li>
+    <li>問題回報：<a href="https://github.com/Nouischen/claude-code-phone-gateway/issues">GitHub Issues</a></li>
+  </ul>
+</div></section>
+
+<footer><div class="wrap">
+  陳昱傑醫師｜台南・骨科與疼痛介入｜這個頁面和工具都是個人專案，與 Anthropic 無關。Claude、Claude Code 為 Anthropic 商標。
+</div></footer>
+</body>
+</html>
