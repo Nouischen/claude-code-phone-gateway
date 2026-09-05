@@ -1,0 +1,8 @@
+# runtime state written next to the scripts (or in -LogDir)
+logs/
+*.log
+*.log.1
+gateway.lock
+ALERT-*.txt
+# local scratch
+*.bak-*
