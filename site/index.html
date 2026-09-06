@@ -78,7 +78,7 @@ th{background:var(--soft);font-weight:800}
 .copy{position:absolute;top:10px;right:10px;background:#fff;color:var(--accent-d);border:1.5px solid var(--line);border-radius:9px;padding:6px 12px;font-family:inherit;font-weight:800;font-size:13px;cursor:pointer}
 .copy:hover{background:var(--soft)}
 .copy.ok{background:#d1fae5;color:var(--ok);border-color:#a7f3d0}
-pre.out{background:#eef2f9;color:#1f2937;border:1px solid var(--line);font-size:13.5px}
+pre.out{background:#eef2f9;color:#1f2937;border:1px solid var(--line);font-size:13.5px;white-space:pre-wrap;word-break:break-word}
 details{margin:8px 0 4px}summary{cursor:pointer;font-weight:800;color:var(--accent-d)}
 .step ol{padding-left:22px}.step ol li{margin-bottom:6px}
 .muted{color:var(--muted)}
@@ -177,8 +177,8 @@ ul{padding-left:22px}li{margin-bottom:6px}
     <p>成功的話，它最後會回你類似這樣的內容：</p>
     <pre class="out">[4/4] gateway running and connected: https://claude.ai/code?environment=env_...
 
-裝好了。手機上：打開 Claude App → Code → Devices 選「我的電腦」→ 資料夾選 claude-code-phone-gateway → New session</pre>
-    <p>「我的電腦」這個名字想改成別的，貼之前把句子裡那四個字改掉就好。</p>
+裝好了。手機上：打開 Claude App → Code → Devices 點你的電腦 → 資料夾選 claude-code-phone-gateway → New session</pre>
+    <p><b>整句照貼就好，一個字都不用改。</b>句子裡的「我的電腦」只是清單上的一個顯示名稱，不影響任何功能。</p>
     <div class="note">如果它說健檢有 <b>FAIL</b>：它會把修法用白話講給你聽。照做完，跟它說「好了，再試一次」。最常見的兩種是電腦上還沒登入訂閱帳號（它會教你打 /login），以及 Claude Code 版本太舊（它會幫你更新）。</div>
   </div>
 
@@ -186,7 +186,7 @@ ul{padding-left:22px}li{margin-bottom:6px}
     <label class="chk"><input type="checkbox" data-step="a3"><b>第 3 步：拿起手機試一下</b></label>
     <ol>
       <li>打開 Claude App，點下方的 <b>Code</b></li>
-      <li>找到 <b>Devices</b>（裝置），點你剛才取的名字。旁邊有綠點代表在線</li>
+      <li>找到 <b>Devices</b>（裝置），點你的電腦。清單上顯示的是電腦本身的名稱，像 DESKTOP-ABC123 這種，旁邊有綠點代表在線</li>
       <li>Directory（資料夾）選 <code>claude-code-phone-gateway</code>，按 <b>New session</b></li>
       <li>對它說一句：<code>列出這個資料夾裡的檔案</code></li>
     </ol>
@@ -242,7 +242,7 @@ Result: ready. 1 warning(s).</pre>
     </table></div>
 
     <h3>手動 4：安裝</h3>
-    <p>引號裡的「我的電腦」可以改成你想在手機上看到的名字。貼上、按 Enter，大約 15 秒。</p>
+    <p>照貼就好，引號裡的「我的電腦」只是清單上的顯示名稱，不用改。貼上、按 Enter，大約 15 秒。</p>
     <div class="cmd"><pre><code id="c4">powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Name "我的電腦"</code></pre><button class="copy" data-for="c4" type="button">複製</button></div>
     <pre class="out">[1/4] work folder marked trusted in ~/.claude.json (backup: ...)
 [2/4] live probe: starting claude remote-control once...
